@@ -1,0 +1,94 @@
+% NSF proposal generation template style file.
+% based on latex stylefiles written by Stefan Llewellyn Smith and
+% Sarah Gille, with contributions from other collaborators.
+%
+\documentclass{proposalnsf}
+
+% See this file for a set of pre-defined journal abbreviations
+%\input{journal-abbreviations.tex} 
+
+\newcommand{\degrees}{$\!\!$\char23$\!$}
+\renewcommand{\refname}{\centerline{References cited}}
+
+% This handles hanging indents for publications
+\def\rrr#1\\{\par
+\medskip\hbox{\vbox{\parindent=2em\hsize=6.12in
+\hangindent=4em\hangafter=1#1}}}
+
+\def\baselinestretch{1}
+
+\begin{document}
+
+\begin{center}
+{\Large{\bf Project Summary}}\\*[3mm]
+{\bf Extreme Computing for Urban Resilience Against Extreme Climatic Events} \\*[3mm]
+
+Mohammad Javad Abdolhosseini Qomi \\
+Aparna Chandramowlishwaran \\
+Feng Liu \\
+Amir Aghakouchak \\
+
+\end{center}
+
+
+This is a  proposal to do .....
+
+
+
+\noindent
+{\bf Intellectual Merit}
+
+\ \\
+
+\noindent
+{\bf Broader Impacts}
+
+\renewcommand{\thepage} {B--\arabic{page}}
+
+\newpage
+\section{Introduction-Project Description:}
+We should discuss the project in terms of its physics (stucture-fluid interactions) and numerical techniques to reduce
+
+\section{Literature Review}
+MJ is currently performing an extensive literature review on the building-level and city-level hurriacane resilience modeling to pin point the gaps in knowledge and state-of-the-asr.
+
+Aparna: Do we need  a literature review from your side?
+
+\section{Proposal Tasks}
+
+\subsection{MD-Based Modeling of Structural and non-Structural elemenets:} The aims of this task is to provide a robust and efficient model for modeling buildings, which can be used in hurricane modeling at a desired level of abstraction (coarse-graining). MJ should discuss why he is suggesting his MD-based approach instead of the conventional arbiterary lagrangian-Eulerian (ALE) FEM techniques for modeling large deformation and inelastic deformation. What is the speed up? What are the advantage and disadvantages and limitations (if any)? Which functionalities still remain to be programmed? List the required development in LAMMPS Source code. 
+
+Aparna, Could you please look into the domain decomposition paralleization scheme in LAMMPS? In general if the particles are distributed equally in the space, DD should provide a good speed up. However, we have buildings and spaces in between them and a some projectiles? How can we find a balance our CPU resources to minimize the communication time and have a better resource allocation?
+
+MJ is preparing some speedup graphs to study paralelizbility of LAMMPS MD code. He is modeling two cases of a super large building and several small buildings and is running them with different number of CPUs to check how do they speed up.
+
+\subsection{Mesoscale Fluid-Structure Interaction Modeling:} This task include categorizing different buildings, their wall, roof and cladding systems. A naive idea is that we can start by some image processing of google satelite images to identify different roof shingle systems. We can perform clustering algorithms to identify and categorize different building-types. We subsequently, can run computationally expensive simulations to produce "physics-based" reduced-order models of building-hurricane interaction that we can run at a fraction of computational cost, when modeling hurricane-city interaction. Here, we can also do some dimensional analysis and $\Pi$ -theorem to find physically meaningful data to produce physics-informed sorrugate models. What kind of surrogate models do we want to use? Will they consider projectile impact or are they going to be only fluid-structure interaction? How do the models evolve as a building start to disintegrate? MJ  notes that most of the problem arises from non-structural components. We need more concrete details from Fang in this section. In terms of parallel processing, this seems to be an embarrasingly parallel problem given a nice design of experiment. Fang, what kind of design of experiments are you intersted? Latin Hypercube sampling (quasi monte carlo) or more suphisticated? Also, what is the estimate of the computational cost of these calculations? What are the estimated number of design parameters?
+ 
+\subsection{Combining Weather Data with Urban-Scale Fluid Dynamics Modeling:} In this task, we plan to model hurricane fluid dynamics with urban topology. We need to consider not only high reynolds number fluid in the urban canopy across the cit but also we need to model projectile formatio, fligh and impact. How are we going to do that? Can we decouple this problem, i.e. only consider momentum transfer from fluid to solid and not vice versa, to reduce its computational complexity? In other words, can we consider that the trajectory of projectiles are controlled by the fluid but these projectiles dont impact the fluid flow? In this way, we can have one layer for structural materials and another layer for fluid....
+
+\section{Project Deliverables}
+\subsection{Realtime Hurricane Damage Prediction} In this section, we should discuss the creation of an opensource software infrastructure that researchers from different institutions can contribute to the further development of the software. 
+
+\subsection{Coastal City Potential Hazard Assessment} In this section, we should elaborate on creating a database of coastal cities and quantify their susceptibility to category 4 and 5 hurricanes
+
+\subsection{Case Study} With our unique software infrastructure, we should be able to study one of the recent hurricanes to see whether we can predict the same damage patterns at the city scale. There are satellite images available according to Amir (could you please provide us with a link and resolution of the pictures). Also, there are some aerial images from NASA (Amir, would it be possible to get our hands on this data? Do we need to sign NDAs?) Do we need to define a damage? What should that spatial damage index be based on? Any suggestions?
+
+\section{Broader Impacts}
+Here, we will discuss the broader impact in terms of science-informed strategic evacuation planning to protect tax payers agains axtreme weather events. Satellite data usually provide 24-48hr lead time before a hurricane impact an environment.
+
+\section{Time Line and Management Plan}
+
+\section{Results from Prior NSF Support}
+
+\pagenumbering{arabic}
+\renewcommand{\thepage} {D--\arabic{page}}
+
+\bibliography{draft}
+\bibliographystyle{jponew}
+
+\newpage
+\pagenumbering{arabic}
+\renewcommand{\thepage} {G--\arabic{page}}
+\noindent{\Large \bf BUDGET JUSTIFICATION}
+
+\end{document}
