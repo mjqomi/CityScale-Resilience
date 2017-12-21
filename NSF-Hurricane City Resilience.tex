@@ -3,7 +3,9 @@
 % Sarah Gille, with contributions from other collaborators.
 %
 \documentclass{proposalnsf}
-
+\usepackage{blindtext}
+\usepackage{enumitem}
+\usepackage{xcolor}
 % See this file for a set of pre-defined journal abbreviations
 %\input{journal-abbreviations.tex} 
 
@@ -50,28 +52,47 @@ This is a  proposal to do .....
 We should discuss the project in terms of its physics (stucture-fluid interactions) and numerical techniques to reduce
 
 \section{Literature Review}
-MJ is currently performing an extensive literature review on the building-level and city-level hurriacane resilience modeling to pin point the gaps in knowledge and state-of-the-asr.
 
-Aparna: Do we need  a literature review from your side?
+\textcolor{blue}{MJ} is currently performing an extensive literature review on the building-level and city-level hurriacane resilience modeling to pin point the gaps in knowledge and state-of-the-asr.
+
+\textcolor{red}{Aparna}: Do we need  a literature review from your side?
 
 \section{Proposal Tasks}
 
-\subsection{MD-Based Modeling of Structural and non-Structural elemenets:} The aims of this task is to provide a robust and efficient model for modeling buildings, which can be used in hurricane modeling at a desired level of abstraction (coarse-graining). MJ should discuss why he is suggesting his MD-based approach instead of the conventional arbiterary lagrangian-Eulerian (ALE) FEM techniques for modeling large deformation and inelastic deformation. What is the speed up? What are the advantage and disadvantages and limitations (if any)? Which functionalities still remain to be programmed? List the required development in LAMMPS Source code. 
+\subsection{MD-Based Modeling of Structural and non-Structural elemenets:} The aims of this task is to provide a robust and efficient model for modeling buildings, which can be used in hurricane modeling at a desired level of abstraction (coarse-graining). \textcolor{blue}{MJ} should discuss why he is suggesting his MD-based approach instead of the conventional arbiterary lagrangian-Eulerian (ALE) FEM techniques for modeling large deformation and inelastic deformation. What is the speed up? What are the advantage and disadvantages and limitations (if any)? Which functionalities still remain to be programmed? List the required development in LAMMPS Source code. 
 
-Aparna, Could you please look into the domain decomposition paralleization scheme in LAMMPS? In general if the particles are distributed equally in the space, DD should provide a good speed up. However, we have buildings and spaces in between them and a some projectiles? How can we find a balance our CPU resources to minimize the communication time and have a better resource allocation?
+\begin{description}[font=$\bullet$~\normalfont\scshape\color{red!50!black}]
 
-MJ is preparing some speedup graphs to study paralelizbility of LAMMPS MD code. He is modeling two cases of a super large building and several small buildings and is running them with different number of CPUs to check how do they speed up.
+\item [Development One:] There are two methods to implement structural element breakable interparticle potentials: analytical and tabulated potentials. The analytical potentials are numerically more stable than tabulated one. The stable time step for analytical potentials is in the order of 10$^{-5}$s-10$^{-4}$s, while that for tabulated is 10$^{-7}$s-10$^{-6}$s, for  buildings of varying mechanical stiffness. This means that tabulated potentials are roughly 100 slower than analytical potentials. The breakable stretch spring potentials are already implemented in LAMMPS. However, the breakable bending potentials need to be implemented to speedup the calculations. The bond lists should be updated upon fracture and this functionality is missing in LAMMPS. 
 
-\subsection{Mesoscale Fluid-Structure Interaction Modeling:} This task include categorizing different buildings, their wall, roof and cladding systems. A naive idea is that we can start by some image processing of google satelite images to identify different roof shingle systems. We can perform clustering algorithms to identify and categorize different building-types. We subsequently, can run computationally expensive simulations to produce "physics-based" reduced-order models of building-hurricane interaction that we can run at a fraction of computational cost, when modeling hurricane-city interaction. Here, we can also do some dimensional analysis and $\Pi$ -theorem to find physically meaningful data to produce physics-informed sorrugate models. What kind of surrogate models do we want to use? Will they consider projectile impact or are they going to be only fluid-structure interaction? How do the models evolve as a building start to disintegrate? MJ  notes that most of the problem arises from non-structural components. We need more concrete details from Fang in this section. In terms of parallel processing, this seems to be an embarrasingly parallel problem given a nice design of experiment. Fang, what kind of design of experiments are you intersted? Latin Hypercube sampling (quasi monte carlo) or more suphisticated? Also, what is the estimate of the computational cost of these calculations? What are the estimated number of design parameters?
+\item [Development Two:] The other problem is with unloading. Currently, MD-based method only works for continuous loading. However, after plastic deformatiom, the structure will not return back to the initial deformation and some residual displacement (strain) will remain in the structure. We need to implement new set of potentials in which interparticle forces are calculated based on whether the structure is under loading or unloading conditions. Based on the structural plasticity theory, the structure should be unloaded using a harmonic potential with a stiffness equal to that of elastic loading upon unloading phase. The position of the equilibrium will also change upon plastic deformation. Therefore, by the knowledge of stiffness and plastic deformation, we can update interparticle interactions on the fly.
+
+\item [Development Three:] The other problem is with direction dependent potentials. Currently, the two and three body interparticle interactions in atomistic simulations are direction independent. In other words, they are only capable of modeling circular elements. To include non-circular members, we need to introduce the concept of direction dependent potentials. This will help us to model square and rectangular cross sections. How about the interaction between normal and bending forces? specially for reinforced concrete elements, the synergistic normal and bending effects determine the loading capacity and plastic limit of columns.         
+
+\item [Development Four:] Currently, we can model structual elements, i.e. beams, coulumns, slabs and roofs. However, a major contributor to the hurricane damage initiates from the failure of non-structural elememts. To model walls, windows, doors and roof shingles we need to define new elements. What elements do we need to use for these non-structual elements? What are they going to be calibrated based on? Are we going to use combined strech and bending elemenets or we prefer to use four body interactions. Are there finite element simulations or available experimental data? We need literature review for this section.  
+
+\end{description}
+
+If we run 10 million steps of MD simulations with 10$^{-4}$s time steps, this will be rough 15 mins of simulation of phenomenon in which we can study the impact of hurricane at realistic time scales.   
+
+\textcolor{red}{Aparna}, Could you please look into the domain decomposition paralleization scheme in LAMMPS? In general if the particles are distributed equally in the space, DD should provide a good speed up. However, we have buildings and spaces in between them and a some projectiles? How can we find a balance our CPU resources to minimize the communication time and have a better resource allocation?
+
+\textcolor{blue}{MJ} is preparing some speedup graphs to study paralelizbility of LAMMPS MD code. He is preparing three cases as follows. The first case concerns a large building and is designed to explore the effectiveness of spatial decomposition for a single building. It will also provide some idea on the level of coarse-graining possible at an individual building level. The second contains 100 buildings but the same number of particles as in previous case. This would allow us to investigate the impact of open spaces on domain decomposition CPU load allocation. The third and last case tries to model projectile flight in the urban environment and see whether it changes the load allocation in domain decomposition. 
+
+\subsection{Mesoscale Fluid-Structure Interaction Modeling:} \textcolor{green}{Feng:} This task include categorizing different buildings, their wall, roof and cladding systems. A naive idea is that we can start by some image processing of google satelite images to identify different roof shingle systems. We can perform clustering algorithms to identify and categorize different building-types. We subsequently, can run computationally expensive simulations to produce "physics-based" reduced-order models of building-hurricane interaction that we can run at a fraction of computational cost, when modeling hurricane-city interaction. Here, we can also do some dimensional analysis and $\Pi$ -theorem to find physically meaningful data to produce physics-informed sorrugate models. What kind of surrogate models do we want to use? Will they consider projectile impact or are they going to be only fluid-structure interaction? How do the models evolve as a building start to disintegrate? MJ  notes that most of the problem arises from non-structural components. We need more concrete details from Fang in this section. In terms of parallel processing, this seems to be an embarrasingly parallel problem given a nice design of experiment. Fang, what kind of design of experiments are you intersted? Latin Hypercube sampling (quasi monte carlo) or more suphisticated? Also, what is the estimate of the computational cost of these calculations? What are the estimated number of design parameters?
  
 \subsection{Combining Weather Data with Urban-Scale Fluid Dynamics Modeling:} In this task, we plan to model hurricane fluid dynamics with urban topology. We need to consider not only high reynolds number fluid in the urban canopy across the cit but also we need to model projectile formatio, fligh and impact. How are we going to do that? Can we decouple this problem, i.e. only consider momentum transfer from fluid to solid and not vice versa, to reduce its computational complexity? In other words, can we consider that the trajectory of projectiles are controlled by the fluid but these projectiles dont impact the fluid flow? In this way, we can have one layer for structural materials and another layer for fluid....
+
+\textcolor{green}{Feng}, I have a question here. Isn't the fluid dynamics part going to be the computational bottle neck here? If so, how much expensive is it going to be? What is the average element size that we are considering at the city level? It is critical to have some idea about the computational expense of these simulations to confirm the feasability of modeling these systems with exascale computational resources... 
 
 \section{Project Deliverables}
 \subsection{Realtime Hurricane Damage Prediction} In this section, we should discuss the creation of an opensource software infrastructure that researchers from different institutions can contribute to the further development of the software. 
 
 \subsection{Coastal City Potential Hazard Assessment} In this section, we should elaborate on creating a database of coastal cities and quantify their susceptibility to category 4 and 5 hurricanes
 
-\subsection{Case Study} With our unique software infrastructure, we should be able to study one of the recent hurricanes to see whether we can predict the same damage patterns at the city scale. There are satellite images available according to Amir (could you please provide us with a link and resolution of the pictures). Also, there are some aerial images from NASA (Amir, would it be possible to get our hands on this data? Do we need to sign NDAs?) Do we need to define a damage? What should that spatial damage index be based on? Any suggestions?
+\subsection{Case Study} With our unique software infrastructure, we should be able to study one of the recent hurricanes to see whether we can predict the same damage patterns at the city scale. There are satellite images available according to \textcolor{orange}{Amir} (could you please provide us with a link and resolution of the pictures). Also, there are some aerial images from NASA (\textcolor{orange}{Amir}, would it be possible to get our hands on this data? Do we need to sign NDAs?) Do we need to define a damage? What should that spatial damage index be based on? Any suggestions?
+
+\textcolor{orange}{Amir}, I also have another question. Is there any GSI database that we can extract the heiht buildings from? Most of the data that I have worked with, only includes the building footprint, i.e. building polygons, and not the heights. How can we get that?
 
 \section{Broader Impacts}
 Here, we will discuss the broader impact in terms of science-informed strategic evacuation planning to protect tax payers agains axtreme weather events. Satellite data usually provide 24-48hr lead time before a hurricane impact an environment.
@@ -85,10 +106,5 @@ Here, we will discuss the broader impact in terms of science-informed strategic 
 
 \bibliography{draft}
 \bibliographystyle{jponew}
-
-\newpage
-\pagenumbering{arabic}
-\renewcommand{\thepage} {G--\arabic{page}}
-\noindent{\Large \bf BUDGET JUSTIFICATION}
 
 \end{document}
